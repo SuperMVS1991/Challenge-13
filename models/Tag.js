@@ -17,8 +17,6 @@ Tag.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-      type: DataTypes.STRING,
-      allowNull: false,
   },
   {
     sequelize,
