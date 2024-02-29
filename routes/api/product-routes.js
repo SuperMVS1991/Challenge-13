@@ -4,13 +4,52 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+  try {
+    const product = await Product.findAll({
+      attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
+      include: [
+        {
+          model: Tag,
+          through: ProductTag,
+          attributes: ['tag_name'],
+        },
+          {
+          model: Category,
+          attributes: ['category_name'],},
+      ],
+    });
+    res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json(err);
+  }
   // find all products
   // be sure to include its associated Category and Tag data
 });
 
 // get one product
 router.get('/:id', (req, res) => {
+  Product.findOne({
+    where: {
+      id: req.params.id
+    },
+    attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
+    include: [
+      {
+        model: Tag,
+        through: ProductTag,
+        attributes: ['tag_name'],
+      },
+        {
+        model: Category,
+        attributes: ['category_name'],},
+    ],
+  })
+  .then((product) => res.json(product))
+  .catch((err) => {
+    console.log(err);
+    res.status(500).json(err);
+  });
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
 });
@@ -19,10 +58,10 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   /* req.body should look like this...
     {
-      product_name: "Basketball",
-      price: 200.00,
-      stock: 3,
-      tagIds: [1, 2, 3, 4]
+      "product_name": "Basketball",
+      "price": 200.00,
+      "stock": 3,
+      "tagIds": [1, 2, 3, 4]
     }
   */
   Product.create(req.body)
